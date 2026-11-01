@@ -58,9 +58,9 @@ function Requests() {
   const set = async (t: string, id: string, status: string) => { await supabase.from(t).update({ status }).eq('id', id); load() }
   const del = async (t: string, id: string) => { if (confirm('Delete permanently?')) { await supabase.from(t).delete().eq('id', id); load() } }
   const St = ({ t, r, opts }: any) => <select value={r.status} onChange={e => set(t, r.id, e.target.value)}>{opts.map((x: string) => <option key={x}>{x}</option>)}</select>
-  return <><h3>Donation requests</h3><table><tbody>{rows.map(r => <tr key={r.id}><td><b>{r.title}</b><br /><span className="muted">{r.goal_amount} {r.currency} · {r.contact}<br />{r.payment_info}</span></td>
+  return <><h3>Donation requests</h3><table><tbody>{rows.map(r => <tr key={r.id}><td><b>{r.reason || r.title}</b><br /><span className="muted">{r.applicant_name} {r.age && `· ${r.age}y`} · {r.phone} · {r.email}<br />{r.description}<br />Goal {r.goal_amount} {r.currency} · {r.bank_account || r.payment_info}</span></td>
     <td><St t="donation_requests" r={r} opts={['pending', 'approved', 'rejected', 'closed']} /> <button className="btn ghost" onClick={() => del('donation_requests', r.id)}>Delete</button></td></tr>)}</tbody></table>
-    <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} → {rows.find(r => r.id === f.request_id)?.title}<br /><span className="muted">{f.reference} {f.message}</span></td>
+    <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} → {(rows.find(r => r.id === f.request_id)?.reason || rows.find(r => r.id === f.request_id)?.title)}<br /><span className="muted">{f.reference} {f.message}</span></td>
       <td><St t="fundings" r={f} opts={['pledged', 'confirmed', 'rejected']} /> <button className="btn ghost" onClick={() => del('fundings', f.id)}>Delete</button></td></tr>)}</tbody></table></>
 }
 function Users() {

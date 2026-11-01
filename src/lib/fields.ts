@@ -27,12 +27,12 @@ export const itemFields: Field[] = [
 ]
 export const CURRENCIES = ['USD', 'PKR', 'EUR', 'GBP', 'INR', 'AED', 'SAR']
 export const requestFields: Field[] = [
-  { key: 'title', label: 'What do you need donations for?', req: true },
-  { key: 'goal_amount', label: 'Goal amount', type: 'number', req: true },
-  { key: 'currency', label: 'Currency', type: 'select', options: CURRENCIES },
-  { key: 'story', label: 'Your story', type: 'textarea' },
-  { key: 'payment_info', label: 'How should supporters send money? (bank account, JazzCash, Easypaisa, PayPal link…)', type: 'textarea', req: true },
-  { key: 'contact', label: 'Contact (email / phone)' },
+  { key: 'applicant_name', label: 'Your name', req: true }, { key: 'age', label: 'Age', type: 'number' },
+  { key: 'reason', label: 'Reason for needing donations', req: true },
+  { key: 'description', label: 'Description (tell your story)', type: 'textarea' },
+  { key: 'phone', label: 'Phone number' }, { key: 'email', label: 'Gmail address', type: 'email' },
+  { key: 'bank_account', label: 'Bank account / JazzCash / Easypaisa details (where supporters send money)', type: 'textarea', req: true },
+  { key: 'goal_amount', label: 'Goal amount', type: 'number', req: true }, { key: 'currency', label: 'Currency', type: 'select', options: CURRENCIES },
 ]
 export const fundFields: Field[] = [
   { key: 'amount', label: 'Amount you are sending', type: 'number', req: true },

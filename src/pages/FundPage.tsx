@@ -25,15 +25,17 @@ export default function FundPage({ cat }: { cat: any }) {
   return (<><h2>{cat.icon} {cat.name}</h2><p className="muted">{cat.description}</p>
     <p className="notice">MeetPol does not process or hold money. Send money directly to the person using their details, then record your pledge here. Only fund people you trust.</p>
     <div className="cards3">{reqs.map(r => { const t = Number(totals[r.id]?.total || 0); return <Tilt key={r.id}>
-      <h3>{r.title}</h3><p>{r.story}</p><Progress total={t} goal={r.goal_amount} />
+      <h3>{r.reason || r.title}</h3><p className="muted">{r.applicant_name}{r.age && ` · Age ${r.age}`}</p><p>{r.description || r.story}</p><Progress total={t} goal={r.goal_amount} />
       <p className="muted">{t} / {r.goal_amount} {r.currency} · {totals[r.id]?.backers || 0} supporters</p>
       {session ? (r.user_id !== session.user.id ? <button className="btn" onClick={() => { setOpen(r); setMsg('') }}>Fund this</button> : <span className="muted">Your request</span>)
         : <button className="btn" onClick={signInWithGoogle}>Sign in to fund</button>}</Tilt>
     })}{!reqs.length && <p className="muted">No approved requests yet.</p>}</div>
     {session && mine.length > 0 && <><h3>My pledges</h3>{mine.map(p => <div key={p.id} className="pledge">
-      {p.amount} → {reqs.find(r => r.id === p.request_id)?.title || 'a request'} <span className={'badge ' + p.status}>{p.status}</span></div>)}</>}
-    {open && <Modal title={`Fund: ${open.title}`} onClose={() => setOpen(null)}>
-      <p><b>Send {open.currency} to:</b></p><p className="notice" style={{ whiteSpace: 'pre-wrap' }}>{open.payment_info}</p>{open.contact && <p className="muted">Contact: {open.contact}</p>}
+      {p.amount} → {(reqs.find(r => r.id === p.request_id)?.reason || reqs.find(r => r.id === p.request_id)?.title) || 'a request'} <span className={'badge ' + p.status}>{p.status}</span></div>)}</>}
+    {open && <Modal title={`Fund: ${open.reason || open.title}`} onClose={() => setOpen(null)}>
+      <p><b>{open.applicant_name}</b>{open.age && ` · Age ${open.age}`}</p><p>{open.description || open.story}</p>
+      <p className="muted">{open.phone && <>📞 {open.phone}<br /></>}{open.email && <>✉ {open.email}</>}</p>
+      <p><b>Send {open.currency} to:</b></p><p className="notice" style={{ whiteSpace: 'pre-wrap' }}>{open.bank_account || open.payment_info}</p>
       <form onSubmit={send}><FieldsForm fields={fundFields} value={v} onChange={setV} />
         <div className="row"><button className="btn">I sent it — record pledge</button><span className="muted">{msg}</span></div></form></Modal>}</>)
 }
