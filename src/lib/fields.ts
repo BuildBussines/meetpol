@@ -1,4 +1,4 @@
-export type Field = { key: string; label: string; type?: 'text' | 'number' | 'textarea' | 'email'; req?: boolean }
+export type Field = { key: string; label: string; type?: 'text' | 'number' | 'textarea' | 'email' | 'select'; req?: boolean; options?: string[] }
 export const applicantFields: Field[] = [
   { key: 'name', label: 'Full name', req: true }, { key: 'age', label: 'Age', type: 'number' },
   { key: 'degree', label: 'Degree' }, { key: 'graduation_year', label: 'Graduation year', type: 'number' },
@@ -12,6 +12,16 @@ export const postingFields: Field[] = [
   { key: 'looking_for', label: 'Who are you looking for?', type: 'textarea' },
 ]
 export const settingFields: Field[] = [
-  { key: 'hero_title', label: 'Hero title' }, { key: 'hero_subtitle', label: 'Hero subtitle', type: 'textarea' },
+  { key: 'site_name', label: 'Site name (top-left logo & browser tab)' },
+  { key: 'hero_title', label: 'Homepage title' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
   { key: 'announcement', label: 'Announcement banner (empty = hidden)' }, { key: 'footer_text', label: 'Footer text' },
+]
+export const categoryFields: Field[] = [
+  { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon (emoji)' },
+  { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates'] },
+  { key: 'description', label: 'Description', type: 'textarea' },
+]
+export const itemFields: Field[] = [
+  { key: 'title', label: 'Title', req: true }, { key: 'link_url', label: 'Link (for templates: the website to preview)' },
+  { key: 'image_url', label: 'Image URL (optional)' }, { key: 'description', label: 'Description', type: 'textarea' },
 ]

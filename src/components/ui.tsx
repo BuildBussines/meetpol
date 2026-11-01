@@ -8,12 +8,13 @@ export function Tilt({ children }: { children: ReactNode }) {
     onMouseLeave={() => setS('')}>{children}</div>
 }
 export function FieldsForm({ fields, value, onChange }: { fields: Field[]; value: any; onChange: (v: any) => void }) {
+  const set = (k: string, val: any) => onChange({ ...value, [k]: val })
   return <div className="grid">{fields.map(f => <label key={f.key} className={f.type === 'textarea' ? 'full' : ''}>{f.label}
-    {f.type === 'textarea'
-      ? <textarea rows={3} required={f.req} value={value[f.key] ?? ''} onChange={e => onChange({ ...value, [f.key]: e.target.value })} />
-      : <input type={f.type || 'text'} required={f.req} value={value[f.key] ?? ''} onChange={e => onChange({ ...value, [f.key]: f.type === 'number' ? (e.target.value === '' ? null : +e.target.value) : e.target.value })} />}
+    {f.type === 'textarea' ? <textarea rows={3} required={f.req} value={value[f.key] ?? ''} onChange={e => set(f.key, e.target.value)} />
+      : f.type === 'select' ? <select value={value[f.key] ?? f.options![0]} onChange={e => set(f.key, e.target.value)}>{f.options!.map(o => <option key={o}>{o}</option>)}</select>
+      : <input type={f.type || 'text'} required={f.req} value={value[f.key] ?? ''} onChange={e => set(f.key, f.type === 'number' ? (e.target.value === '' ? null : +e.target.value) : e.target.value)} />}
   </label>)}</div>
 }
-export function Modal({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
-  return <div className="modal" onClick={onClose}><div className="panel" onClick={e => e.stopPropagation()}><h3>{title}</h3>{children}</div></div>
+export function Modal({ title, children, onClose, wide }: { title: string; children: ReactNode; onClose: () => void; wide?: boolean }) {
+  return <div className="modal" onClick={onClose}><div className={'panel' + (wide ? ' wide' : '')} onClick={e => e.stopPropagation()}><h3>{title}</h3>{children}</div></div>
 }
