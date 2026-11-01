@@ -18,10 +18,24 @@ export const settingFields: Field[] = [
 ]
 export const categoryFields: Field[] = [
   { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon (emoji)' },
-  { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates'] },
+  { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates', 'donations', 'fund'] },
   { key: 'description', label: 'Description', type: 'textarea' },
 ]
 export const itemFields: Field[] = [
   { key: 'title', label: 'Title', req: true }, { key: 'link_url', label: 'Link (for templates: the website to preview)' },
   { key: 'image_url', label: 'Image URL (optional)' }, { key: 'description', label: 'Description', type: 'textarea' },
+]
+export const CURRENCIES = ['USD', 'PKR', 'EUR', 'GBP', 'INR', 'AED', 'SAR']
+export const requestFields: Field[] = [
+  { key: 'title', label: 'What do you need donations for?', req: true },
+  { key: 'goal_amount', label: 'Goal amount', type: 'number', req: true },
+  { key: 'currency', label: 'Currency', type: 'select', options: CURRENCIES },
+  { key: 'story', label: 'Your story', type: 'textarea' },
+  { key: 'payment_info', label: 'How should supporters send money? (bank account, JazzCash, Easypaisa, PayPal link…)', type: 'textarea', req: true },
+  { key: 'contact', label: 'Contact (email / phone)' },
+]
+export const fundFields: Field[] = [
+  { key: 'amount', label: 'Amount you are sending', type: 'number', req: true },
+  { key: 'reference', label: 'Transaction ID / reference (optional)' },
+  { key: 'message', label: 'Message (optional)', type: 'textarea' },
 ]

@@ -3,10 +3,11 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { applicantFields, postingFields, settingFields, categoryFields, itemFields } from '../lib/fields'
 import { FieldsForm, Modal } from '../components/ui'
+import { fixUrl } from '../lib/url'
 
 // Admin RLS policies grant full access, so plain supabase calls work for every table here.
 // Reusable list + edit + delete (+ optional add form). `where` filters rows, `prepare` tweaks rows before insert.
-function Table({ table, fields, label, where, defaults, prepare, add, extra, onChange }: any) {
+function Table({ table, fields, label, where, defaults, prepare, add, extra, onChange, preview }: any) {
   const [rows, setRows] = useState<any[]>([]); const [edit, setEdit] = useState<any>(null); const [nv, setNv] = useState<any>({}); const [err, setErr] = useState('')
   const load = () => { let q: any = supabase.from(table).select('*'); if (where) q = q.eq(where[0], where[1]); q.order('created_at', { ascending: false }).then(({ data }: any) => setRows(data || [])) }
   useEffect(() => { load() }, [table, where?.[1]])
@@ -15,7 +16,9 @@ function Table({ table, fields, label, where, defaults, prepare, add, extra, onC
   const del = async (id: string) => { if (confirm('Delete permanently?')) done((await supabase.from(table).delete().eq('id', id)).error) }
   const create = async (e: any) => { e.preventDefault(); const row = { ...defaults, ...nv }; if (done((await supabase.from(table).insert(prepare ? prepare(row) : row)).error)) setNv({}) }
   return <>
-    {add && <form onSubmit={create}><h3>Add new</h3><FieldsForm fields={fields} value={nv} onChange={setNv} /><div className="row"><button className="btn">Add</button></div></form>}
+    {add && <form onSubmit={create}><h3>Add new</h3><FieldsForm fields={fields} value={nv} onChange={setNv} />
+      {preview && nv.link_url && <><p className="muted">Live preview (blank = that site blocks embedding):</p><div className="thumb"><iframe src={fixUrl(nv.link_url)} title="preview" sandbox="allow-scripts allow-same-origin" /></div></>}
+      <div className="row"><button className="btn">Add</button></div></form>}
     <p className="muted">{err}</p>
     <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.icon} {r[label]}</td><td className="muted">{r.email || r.company || r.link_url || r.kind || ''}</td>
       <td>{extra?.(r)} <button className="btn ghost" onClick={() => setEdit(r)}>Edit</button> <button className="btn ghost" onClick={() => del(r.id)}>Delete</button></td></tr>)}</tbody></table>
@@ -31,6 +34,34 @@ function Categories() {
     extra={(r: any) => <button className="btn" onClick={() => setSel(r)}>Items</button>} />
     {sel && <div className="panel"><h3>Items in “{sel.name}” {sel.kind === 'templates' && '(paste a website link — it will be previewed)'}</h3>
       <Table key={sel.id} table="category_items" fields={itemFields} label="title" where={['category_id', sel.id]} defaults={{ category_id: sel.id }} add /></div>}</>
+}
+// Dedicated place to add website templates: paste a link, see the preview, press Add.
+function Templates() {
+  const { loadCategories } = useAuth(); const [cats, setCats] = useState<any[] | null>(null); const [cid, setCid] = useState('')
+  const load = async () => { const { data } = await supabase.from('categories').select('*').eq('kind', 'templates'); setCats(data || []); if (data?.length) setCid((c: string) => c || data[0].id) }
+  useEffect(() => { load() }, [])
+  const create = async () => { await supabase.from('categories').insert({ name: 'Templates', slug: 'templates-' + Date.now().toString(36), kind: 'templates', icon: '🧩', description: 'Website templates with live preview.' }); await load(); loadCategories() }
+  if (!cats) return <p className="muted">Loading…</p>
+  if (!cats.length) return <div className="row"><p>No Templates category yet.</p><button className="btn" onClick={create}>Create Templates category</button></div>
+  return <><h3>Add a website template</h3>
+    {cats.length > 1 && <label>Category<select value={cid} onChange={e => setCid(e.target.value)}>{cats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
+    <Table key={cid} table="category_items" fields={itemFields} label="title" where={['category_id', cid]} defaults={{ category_id: cid }} add preview /></>
+}
+// Moderate donation requests and see/override pledges.
+function Requests() {
+  const [rows, setRows] = useState<any[]>([]); const [fund, setFund] = useState<any[]>([])
+  const load = async () => {
+    setRows((await supabase.from('donation_requests').select('*').order('created_at', { ascending: false })).data || [])
+    setFund((await supabase.from('fundings').select('*').order('created_at', { ascending: false })).data || [])
+  }
+  useEffect(() => { load() }, [])
+  const set = async (t: string, id: string, status: string) => { await supabase.from(t).update({ status }).eq('id', id); load() }
+  const del = async (t: string, id: string) => { if (confirm('Delete permanently?')) { await supabase.from(t).delete().eq('id', id); load() } }
+  const St = ({ t, r, opts }: any) => <select value={r.status} onChange={e => set(t, r.id, e.target.value)}>{opts.map((x: string) => <option key={x}>{x}</option>)}</select>
+  return <><h3>Donation requests</h3><table><tbody>{rows.map(r => <tr key={r.id}><td><b>{r.title}</b><br /><span className="muted">{r.goal_amount} {r.currency} · {r.contact}<br />{r.payment_info}</span></td>
+    <td><St t="donation_requests" r={r} opts={['pending', 'approved', 'rejected', 'closed']} /> <button className="btn ghost" onClick={() => del('donation_requests', r.id)}>Delete</button></td></tr>)}</tbody></table>
+    <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} → {rows.find(r => r.id === f.request_id)?.title}<br /><span className="muted">{f.reference} {f.message}</span></td>
+      <td><St t="fundings" r={f} opts={['pledged', 'confirmed', 'rejected']} /> <button className="btn ghost" onClick={() => del('fundings', f.id)}>Delete</button></td></tr>)}</tbody></table></>
 }
 function Users() {
   const [rows, setRows] = useState<any[]>([])
@@ -54,8 +85,8 @@ function Settings() {
 export default function Admin() {
   const [tab, setTab] = useState('settings')
   return <div className="panel"><h2>Admin dashboard</h2>
-    <div className="row">{['settings', 'categories', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab === 'settings' && <Settings />}{tab === 'categories' && <Categories />}
+    <div className="row">{['settings', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
+    {tab === 'settings' && <Settings />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
     {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
     {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" />}
     {tab === 'users' && <Users />}</div>

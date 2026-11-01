@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Tilt, Modal } from '../components/ui'
-
-const fixUrl = (u: string) => (/^https?:\/\//i.test(u) ? u : 'https://' + u)
+import { fixUrl } from '../lib/url'
+import DonationsPage from './DonationsPage'
+import FundPage from './FundPage'
 export default function CategoryPage() {
   const { slug } = useParams(); const [cat, setCat] = useState<any>(null); const [items, setItems] = useState<any[]>([]); const [open, setOpen] = useState<any>(null); const [done, setDone] = useState(false)
   useEffect(() => {
@@ -16,6 +17,8 @@ export default function CategoryPage() {
   }, [slug])
   if (done && !cat) return <p className="muted center">Category not found.</p>
   if (!cat) return <p className="muted center">Loading…</p>
+  if (cat.kind === 'donations') return <DonationsPage cat={cat} />
+  if (cat.kind === 'fund') return <FundPage cat={cat} />
   const tpl = cat.kind === 'templates'
   return (<><h2>{cat.icon} {cat.name}</h2><p className="muted">{cat.description}</p>
     <div className="cards3">{items.map(i => <Tilt key={i.id}>
