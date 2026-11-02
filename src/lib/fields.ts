@@ -15,12 +15,13 @@ export const categoryFields: Field[] = [
   { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon (emoji)' },
   { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates', 'donations', 'fund'] },
   { key: 'description', label: 'Description', type: 'textarea' },
-  { key: 'coming_soon', label: '🚧 Coming soon (only admin & testers can see this category)', type: 'checkbox' },
+  { key: 'coming_soon', label: '🚧 Enable coming soon (visitors see only a poster; admin & testers see the real page)', type: 'checkbox' },
+  { key: 'poster_title', label: 'Poster title (default: Coming Soon)' }, { key: 'poster_text', label: 'Poster text', type: 'textarea' },
+  { key: 'poster_image', label: 'Poster image URL (optional)' },
 ]
 export const itemFields: Field[] = [
   { key: 'title', label: 'Title', req: true }, { key: 'link_url', label: 'Link (for templates: the website to preview)' },
   { key: 'image_url', label: 'Image URL (optional)' }, { key: 'description', label: 'Description', type: 'textarea' },
-  { key: 'coming_soon', label: '🚧 Coming soon (only admin & testers can see it)', type: 'checkbox' },
 ]
 export const CURRENCIES = ['USD', 'PKR', 'EUR', 'GBP', 'INR', 'AED', 'SAR']
 export const requestFields: Field[] = [

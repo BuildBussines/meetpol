@@ -31,7 +31,7 @@ function Categories() {
   const { loadCategories } = useAuth(); const [sel, setSel] = useState<any>(null)
   return <><Table table="categories" fields={categoryFields} label="name" add onChange={loadCategories}
     prepare={(r: any) => ({ ...r, kind: r.kind || 'generic', slug: slugify(r.name) })}
-    extra={(r: any, reload: any) => <><button className="btn" onClick={() => setSel(r)}>Items</button> <button className="btn ghost" onClick={async () => { await supabase.from('categories').update({ coming_soon: !r.coming_soon }).eq('id', r.id); reload(); loadCategories() }}>{r.coming_soon ? '🚧 Coming soon: ON' : '🚧 Coming soon: OFF'}</button></>} />
+    extra={(r: any, reload: any) => <><button className="btn" onClick={() => setSel(r)}>Items</button> <button className={r.coming_soon ? 'btn' : 'btn ghost'} onClick={async () => { await supabase.from('categories').update({ coming_soon: !r.coming_soon }).eq('id', r.id); reload(); loadCategories() }}>{r.coming_soon ? '🚧 Disable coming soon' : '🚧 Enable coming soon'}</button></>} />
     {sel && <div className="panel"><h3>Items in “{sel.name}” {sel.kind === 'templates' && '(paste a website link — it will be previewed)'}</h3>
       <Table key={sel.id} table="category_items" fields={itemFields} label="title" where={['category_id', sel.id]} defaults={{ category_id: sel.id }} add /></div>}</>
 }
@@ -63,15 +63,6 @@ function Requests() {
     <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} → {(rows.find(r => r.id === f.request_id)?.reason || rows.find(r => r.id === f.request_id)?.title)}<br /><span className="muted">{f.reference} {f.message}</span></td>
       <td><St t="fundings" r={f} opts={['pledged', 'confirmed', 'rejected']} /> <button className="btn ghost" onClick={() => del('fundings', f.id)}>Delete</button></td></tr>)}</tbody></table></>
 }
-// Add a "coming soon" item to ANY category; only admins and testers can see it until you untick the box.
-function ComingSoon() {
-  const { categories } = useAuth(); const [cid, setCid] = useState(''); const c = cid || categories[0]?.id
-  if (!categories.length) return <p className="muted">Create a category first (categories tab).</p>
-  return <><h3>🚧 Add something “coming soon”</h3>
-    <p className="muted">Pick a category. Items added here are hidden from everyone except admins and testers. Untick “Coming soon” to publish.</p>
-    <label>Category<select value={c} onChange={e => setCid(e.target.value)}>{categories.map((x: any) => <option key={x.id} value={x.id}>{x.icon} {x.name}</option>)}</select></label>
-    <Table key={c} table="category_items" fields={itemFields} label="title" where={[['category_id', c], ['coming_soon', true]]} defaults={{ category_id: c }} initial={{ coming_soon: true }} add preview /></>
-}
 function Users() {
   const [rows, setRows] = useState<any[]>([])
   const load = () => supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(({ data }) => setRows(data || []))
@@ -95,8 +86,8 @@ export default function Admin() {
   const { session } = useAuth()
   const [tab, setTab] = useState('homepage')
   return <div className="panel"><h2>Admin dashboard</h2>
-    <div className="row">{['homepage', 'settings', 'coming soon', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}{tab === 'coming soon' && <ComingSoon />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
+    <div className="row">{['homepage', 'settings', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
+    {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
     {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
     {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" add defaults={{ employer_id: session.user.id }} />}
     {tab === 'users' && <Users />}</div>
