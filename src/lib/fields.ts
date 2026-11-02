@@ -1,4 +1,4 @@
-export type Field = { key: string; label: string; type?: 'text' | 'number' | 'textarea' | 'email' | 'select'; req?: boolean; options?: string[] }
+export type Field = { key: string; label: string; type?: 'text' | 'number' | 'textarea' | 'email' | 'select' | 'checkbox' | 'color'; req?: boolean; options?: string[] }
 export const applicantFields: Field[] = [
   { key: 'name', label: 'Full name', req: true }, { key: 'age', label: 'Age', type: 'number' },
   { key: 'degree', label: 'Degree' }, { key: 'graduation_year', label: 'Graduation year', type: 'number' },
@@ -11,15 +11,11 @@ export const postingFields: Field[] = [
   { key: 'title', label: 'Role title', req: true }, { key: 'company', label: 'Company' }, { key: 'location', label: 'Location' },
   { key: 'looking_for', label: 'Who are you looking for?', type: 'textarea' },
 ]
-export const settingFields: Field[] = [
-  { key: 'site_name', label: 'Site name (top-left logo & browser tab)' },
-  { key: 'hero_title', label: 'Homepage title' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
-  { key: 'announcement', label: 'Announcement banner (empty = hidden)' }, { key: 'footer_text', label: 'Footer text' },
-]
 export const categoryFields: Field[] = [
   { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon (emoji)' },
   { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates', 'donations', 'fund'] },
   { key: 'description', label: 'Description', type: 'textarea' },
+  { key: 'coming_soon', label: '🚧 Coming soon (only admin & testers can see this category)', type: 'checkbox' },
 ]
 export const itemFields: Field[] = [
   { key: 'title', label: 'Title', req: true }, { key: 'link_url', label: 'Link (for templates: the website to preview)' },
@@ -38,4 +34,25 @@ export const fundFields: Field[] = [
   { key: 'amount', label: 'Amount you are sending', type: 'number', req: true },
   { key: 'reference', label: 'Transaction ID / reference (optional)' },
   { key: 'message', label: 'Message (optional)', type: 'textarea' },
+]
+
+export const homeDefaults: Record<string, string> = {
+  hero_title: 'Where talent meets opportunity', hero_subtitle: 'MeetPol connects ambitious job seekers with employers who are looking for them.',
+  box1_icon: '🎓', box1_title: 'Job seekers', box1_text: 'Build one rich profile and let employers find you.', box1_color: '#7c5cff', box1_link: '',
+  box2_icon: '🏢', box2_title: 'Employers', box2_text: 'Review applicant profiles and post exactly who you want to hire.', box2_color: '#22d3ee', box2_link: '',
+  box3_icon: '🔒', box3_title: 'Private by design', box3_text: 'Row Level Security keeps your data editable only by you.', box3_color: '#f472b6', box3_link: '',
+}
+export const siteFields: Field[] = [
+  { key: 'site_name', label: 'Site name (top-left logo & browser tab)' },
+  { key: 'announcement', label: 'Announcement banner (empty = hidden)' }, { key: 'footer_text', label: 'Footer text' },
+]
+// Homepage: headline + the three boxes (icon, title, text, optional link, accent color)
+export const homeFields: Field[] = [
+  { key: 'hero_title', label: 'Homepage title' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
+  ...[1, 2, 3].flatMap(i => [
+    { key: `box${i}_icon`, label: `Box ${i} — icon (emoji)` }, { key: `box${i}_title`, label: `Box ${i} — title` },
+    { key: `box${i}_text`, label: `Box ${i} — text`, type: 'textarea' as const },
+    { key: `box${i}_link`, label: `Box ${i} — link (optional, e.g. /postings or https://…)` },
+    { key: `box${i}_color`, label: `Box ${i} — accent color`, type: 'color' as const },
+  ]),
 ]

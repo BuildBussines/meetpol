@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
-import { applicantFields, postingFields, settingFields, categoryFields, itemFields } from '../lib/fields'
+import { applicantFields, postingFields, siteFields, homeFields, homeDefaults, categoryFields, itemFields } from '../lib/fields'
 import { FieldsForm, Modal } from '../components/ui'
 import { fixUrl } from '../lib/url'
 
@@ -20,7 +20,7 @@ function Table({ table, fields, label, where, defaults, prepare, add, extra, onC
       {preview && nv.link_url && <><p className="muted">Live preview (blank = that site blocks embedding):</p><div className="thumb"><iframe src={fixUrl(nv.link_url)} title="preview" sandbox="allow-scripts allow-same-origin" /></div></>}
       <div className="row"><button className="btn">Add</button></div></form>}
     <p className="muted">{err}</p>
-    <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.icon} {r[label]}</td><td className="muted">{r.email || r.company || r.link_url || r.kind || ''}</td>
+    <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.icon} {r[label]} {r.coming_soon && <span className="badge pending">🚧 coming soon</span>}</td><td className="muted">{r.email || r.company || r.link_url || r.kind || ''}</td>
       <td>{extra?.(r)} <button className="btn ghost" onClick={() => setEdit(r)}>Edit</button> <button className="btn ghost" onClick={() => del(r.id)}>Delete</button></td></tr>)}</tbody></table>
     {edit && <Modal title="Edit" onClose={() => setEdit(null)}><form onSubmit={save}><FieldsForm fields={fields} value={edit} onChange={setEdit} /><div className="row"><button className="btn">Save</button></div></form></Modal>}</>
 }
@@ -67,26 +67,27 @@ function Users() {
   const [rows, setRows] = useState<any[]>([])
   const load = () => supabase.from('profiles').select('*').order('created_at', { ascending: false }).then(({ data }) => setRows(data || []))
   useEffect(() => { load() }, [])
+  const setTester = async (id: string, is_tester: boolean) => { await supabase.from('profiles').update({ is_tester }).eq('id', id); load() }
   const setRole = async (id: string, role: string) => { await supabase.from('profiles').update({ role }).eq('id', id); load() }
-  return <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.email}</td><td><select value={r.role} onChange={e => setRole(r.id, e.target.value)}>{['seeker', 'employer', 'admin'].map(x => <option key={x}>{x}</option>)}</select></td></tr>)}</tbody></table>
+  return <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.email}</td><td><select value={r.role} onChange={e => setRole(r.id, e.target.value)}>{['seeker', 'employer', 'admin'].map(x => <option key={x}>{x}</option>)}</select> <label className="chk"><input type="checkbox" checked={!!r.is_tester} onChange={e => setTester(r.id, e.target.checked)} /> 🧪 Tester</label></td></tr>)}</tbody></table>
 }
 // FIX: the form now re-syncs when settings load, and save errors are shown instead of a fake "Saved".
-function Settings() {
+function Settings({ fields }: { fields: any[] }) {
   const { settings, loadSettings } = useAuth(); const [v, setV] = useState<any>({}); const [m, setM] = useState('')
-  useEffect(() => { setV(settings) }, [settings])
+  useEffect(() => { setV({ ...homeDefaults, ...settings }) }, [settings])
   const save = async (e: any) => {
     e.preventDefault()
-    const { error } = await supabase.from('site_settings').upsert(settingFields.map(f => ({ key: f.key, value: v[f.key] ?? '' })), { onConflict: 'key' })
+    const { error } = await supabase.from('site_settings').upsert(fields.map((f: any) => f).map(f => ({ key: f.key, value: v[f.key] ?? '' })), { onConflict: 'key' })
     if (error) return setM('Error: ' + error.message)
     await loadSettings(); setM('Saved ✓ — live now')
   }
-  return <form onSubmit={save}><FieldsForm fields={settingFields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button><span className="muted">{m}</span></div></form>
+  return <form onSubmit={save}><FieldsForm fields={fields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button><span className="muted">{m}</span></div></form>
 }
 export default function Admin() {
-  const [tab, setTab] = useState('settings')
+  const [tab, setTab] = useState('homepage')
   return <div className="panel"><h2>Admin dashboard</h2>
-    <div className="row">{['settings', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab === 'settings' && <Settings />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
+    <div className="row">{['homepage', 'settings', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
+    {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
     {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
     {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" />}
     {tab === 'users' && <Users />}</div>

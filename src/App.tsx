@@ -35,7 +35,7 @@ export default function App() {
     {settings.announcement && <div className="banner">{settings.announcement}</div>}
     <nav className="nav"><Link to="/" className="logo" translate="no">{siteName}</Link>
       <div className="links"><NavLink to="/postings">Jobs</NavLink>
-        {categories.map((c: any) => <NavLink key={c.id} to={`/c/${c.slug}`}>{c.icon} {c.name}</NavLink>)}
+        {categories.map((c: any) => <NavLink key={c.id} to={`/c/${c.slug}`}>{c.coming_soon && '🚧 '}{c.icon} {c.name}</NavLink>)}
         {session && role === 'seeker' && <NavLink to="/profile">My profile</NavLink>}
         {(role === 'employer' || role === 'admin') && <NavLink to="/applicants">Applicants</NavLink>}
         {role === 'admin' && <NavLink to="/admin">Admin</NavLink>}

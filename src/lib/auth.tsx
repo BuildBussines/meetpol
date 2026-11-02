@@ -30,9 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
   useEffect(() => {
     loadSettings(); loadCategories()
-    supabase.auth.getSession().then(async ({ data }) => { setSession(data.session); await loadProfile(data.session?.user.id); await loadAvatar(data.session?.user); setLoading(false) })
+    supabase.auth.getSession().then(async ({ data }) => { setSession(data.session); await loadProfile(data.session?.user.id); await loadAvatar(data.session?.user); await loadCategories(); setLoading(false) })
     // setTimeout avoids calling supabase inside the auth callback (can deadlock)
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => { setSession(s); setTimeout(() => { loadProfile(s?.user.id); loadAvatar(s?.user) }, 0) })
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => { setSession(s); setTimeout(() => { loadProfile(s?.user.id); loadAvatar(s?.user); loadCategories() }, 0) })
     return () => sub.subscription.unsubscribe()
   }, [])
   const signInWithGoogle = () => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/onboarding' } })
