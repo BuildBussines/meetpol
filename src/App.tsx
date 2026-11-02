@@ -36,17 +36,17 @@ export default function App() {
     <nav className="nav"><Link to="/" className="logo" translate="no">{siteName}</Link>
       <div className="links"><NavLink to="/postings">Jobs</NavLink>
         {categories.map((c: any) => <NavLink key={c.id} to={`/c/${c.slug}`}>{c.coming_soon && '🚧 '}{c.icon} {c.name}</NavLink>)}
-        {session && role === 'seeker' && <NavLink to="/profile">My profile</NavLink>}
+        {session && (role === 'seeker' || role === 'tester') && <NavLink to="/profile">My profile</NavLink>}
         {(role === 'employer' || role === 'admin') && <NavLink to="/applicants">Applicants</NavLink>}
         {role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
-        {session && avatar && <Link to={role === 'seeker' ? '/profile' : '/'}><Avatar url={avatar.url} style={avatar.style} size={38} name={avatar.name} /></Link>}
+        {session && avatar && <Link to={role === 'seeker' || role === 'tester' ? '/profile' : '/'}><Avatar url={avatar.url} style={avatar.style} size={38} name={avatar.name} /></Link>}
         {!session && <button className="btn" onClick={signInWithGoogle}>Sign in with Google</button>}
         <button className="btn ghost" onClick={() => setShowSettings(true)}>⚙ Settings</button>
       </div></nav>
     <main key={loc.pathname} className="page"><Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/onboarding" element={<Guard><Onboarding /></Guard>} />
-      <Route path="/profile" element={<Guard roles={['seeker']}><MyProfile /></Guard>} />
+      <Route path="/profile" element={<Guard roles={['seeker', 'tester']}><MyProfile /></Guard>} />
       <Route path="/applicants" element={<Guard roles={['employer', 'admin']}><Applicants /></Guard>} />
       <Route path="/postings" element={<Postings />} />
       <Route path="/c/:slug" element={<CategoryPage />} />

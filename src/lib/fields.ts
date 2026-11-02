@@ -20,6 +20,7 @@ export const categoryFields: Field[] = [
 export const itemFields: Field[] = [
   { key: 'title', label: 'Title', req: true }, { key: 'link_url', label: 'Link (for templates: the website to preview)' },
   { key: 'image_url', label: 'Image URL (optional)' }, { key: 'description', label: 'Description', type: 'textarea' },
+  { key: 'coming_soon', label: '🚧 Coming soon (only admin & testers can see it)', type: 'checkbox' },
 ]
 export const CURRENCIES = ['USD', 'PKR', 'EUR', 'GBP', 'INR', 'AED', 'SAR']
 export const requestFields: Field[] = [
