@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, ReactNode } from 'react'
 import { Routes, Route, Link, Navigate, useLocation, NavLink } from 'react-router-dom'
 import { useAuth } from './lib/auth'
 import { initMusic } from './lib/music'
@@ -23,26 +23,42 @@ function Guard({ roles, children }: { roles?: string[]; children: any }) {
   if (roles && !roles.includes(profile?.role)) return <Navigate to="/" replace />
   return children
 }
+// Click-to-open dropdown; closes on outside click or navigation. On phones it shows inline inside the burger menu.
+function Dropdown({ label, children, align = '' }: { label: ReactNode; children: ReactNode; align?: string }) {
+  const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null); const loc = useLocation()
+  useEffect(() => setOpen(false), [loc.pathname])
+  useEffect(() => { const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false) }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h) }, [])
+  return <div className={'dd' + (open ? ' open' : '')} ref={ref}><button className="dd-btn" onClick={() => setOpen(!open)}>{label} <span className="caret">▾</span></button>
+    <div className={'dd-menu ' + align} onClick={() => setOpen(false)}>{children}</div></div>
+}
 export default function App() {
-  const { session, profile, avatar, categories, signInWithGoogle, settings } = useAuth()
-  const [showSettings, setShowSettings] = useState(false)
+  const { session, profile, avatar, categories, signInWithGoogle, signOut, settings } = useAuth()
+  const [showSettings, setShowSettings] = useState(false); const [burger, setBurger] = useState(false)
   const loc = useLocation(); const role = profile?.role; const siteName = settings.site_name || 'MeetPol'
   useEffect(() => { initMusic(); initTranslate() }, [])
+  useEffect(() => setBurger(false), [loc.pathname])
   useEffect(() => { document.title = `${siteName} — ${settings.hero_title || 'Where talent meets opportunity'}` }, [siteName, settings.hero_title])
   return (<>
     <Scene3D hero={loc.pathname === '/'} />
     <div id="google_translate_element" style={{ display: 'none' }} />
     {settings.announcement && <div className="banner">{settings.announcement}</div>}
-    <nav className="nav"><Link to="/" className="logo" translate="no">{siteName}</Link>
-      <div className="links"><NavLink to="/postings">Jobs</NavLink>
-        {categories.map((c: any) => <NavLink key={c.id} to={`/c/${c.slug}`}>{c.coming_soon && (role === 'admin' || role === 'tester') && '🚧 '}{c.icon} {c.name}</NavLink>)}
-        {session && (role === 'seeker' || role === 'tester') && <NavLink to="/profile">My profile</NavLink>}
+    <header className="topbar"><div className="topbar-in">
+      <Link to="/" className="logo" translate="no">{siteName}</Link>
+      <button className="burger" onClick={() => setBurger(!burger)} aria-label="Menu">{burger ? '✕' : '☰'}</button>
+      <nav className={'links' + (burger ? ' open' : '')}>
+        <NavLink to="/postings">Jobs</NavLink>
+        {categories.length > 0 && <Dropdown label="Explore">{categories.map((c: any) =>
+          <NavLink key={c.id} className="dd-item" to={`/c/${c.slug}`}>{c.icon} {c.name} {c.coming_soon && (role === 'admin' || role === 'tester') && '🚧'}</NavLink>)}</Dropdown>}
         {(role === 'employer' || role === 'admin') && <NavLink to="/applicants">Applicants</NavLink>}
-        {role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
-        {session && avatar && <Link to={role === 'seeker' || role === 'tester' ? '/profile' : '/'}><Avatar url={avatar.url} style={avatar.style} size={38} name={avatar.name} /></Link>}
-        {!session && <button className="btn" onClick={signInWithGoogle}>Sign in with Google</button>}
-        <button className="btn ghost" onClick={() => setShowSettings(true)}>⚙ Settings</button>
-      </div></nav>
+        {session ? <Dropdown align="right" label={<span className="who"><Avatar url={avatar?.url} style={avatar?.style} size={30} name={avatar?.name} /><span>{(avatar?.name || 'Me').split(' ')[0]}</span></span>}>
+          <div className="dd-head"><b>{avatar?.name}</b><small>{role}</small></div>
+          {(role === 'seeker' || role === 'tester') && <NavLink to="/profile" className="dd-item">👤 My profile</NavLink>}
+          {role === 'admin' && <NavLink to="/admin" className="dd-item">🛠 Admin dashboard</NavLink>}
+          <button className="dd-item" onClick={() => setShowSettings(true)}>⚙ Settings</button>
+          <button className="dd-item" onClick={signOut}>⏻ Sign out</button></Dropdown>
+          : <><button className="btn" onClick={signInWithGoogle}>Sign in with Google</button>
+            <button className="btn ghost" onClick={() => setShowSettings(true)} aria-label="Settings">⚙</button></>}
+      </nav></div></header>
     <main key={loc.pathname} className="page"><Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/onboarding" element={<Guard><Onboarding /></Guard>} />

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { applicantFields } from '../lib/fields'
 import { FieldsForm } from '../components/ui'
-import { Avatar } from '../components/Avatar'
+import { Avatar, defaultStyle } from '../components/Avatar'
 
 export default function MyProfile() {
   const { session, refreshAvatar } = useAuth()
@@ -25,7 +25,7 @@ export default function MyProfile() {
     setMsg(error ? error.message : 'Saved ✓'); if (!error) { refreshAvatar(); setV({ ...v }) }
   }
   const del = async () => { if (confirm('Delete your profile?')) { await supabase.from('applicants').delete().eq('user_id', session.user.id); setV({}); setMsg('Deleted'); refreshAvatar() } }
-  return <form className="panel" onSubmit={save}><h2>My application profile</h2>
+  return <form className="panel" onSubmit={save}><h2>My application profile</h2><h3 className="sec">Profile picture</h3>
     <div className="photo-edit"><Avatar url={v.photo_url} style={st} size={150} name={v.name} />
       <div className="grid">
         <label className="full">Profile picture<input type="file" accept="image/*" onChange={upload} /></label>
@@ -35,7 +35,11 @@ export default function MyProfile() {
         <label>Border width<input type="range" min="0" max="10" value={st.borderW ?? 2} onChange={e => setSt({ borderW: +e.target.value })} /></label>
         <label>Move left / right<input type="range" min="-50" max="50" value={st.x || 0} onChange={e => setSt({ x: +e.target.value })} /></label>
         <label>Move up / down<input type="range" min="-50" max="50" value={st.y || 0} onChange={e => setSt({ y: +e.target.value })} /></label>
+        <div className="row full"><button type="button" className="btn ghost" onClick={() => { setV({ ...v, photo_style: { ...defaultStyle } }); setMsg('Picture reset to default — press Save profile') }}>↺ Default settings</button>
+          {v.photo_url && <button type="button" className="btn ghost" onClick={() => { setV({ ...v, photo_url: null }); setMsg('Photo removed — press Save profile') }}>Remove photo</button>}</div>
       </div></div>
-    <FieldsForm fields={applicantFields} value={v} onChange={setV} />
+    <h3 className="sec">Basics</h3><FieldsForm fields={applicantFields.slice(0, 4)} value={v} onChange={setV} />
+    <h3 className="sec">Contact &amp; social</h3><FieldsForm fields={applicantFields.slice(4, 9)} value={v} onChange={setV} />
+    <h3 className="sec">About you</h3><FieldsForm fields={applicantFields.slice(9)} value={v} onChange={setV} />
     <div className="row"><button className="btn">Save profile</button>{v.id && <button type="button" className="btn ghost" onClick={del}>Delete</button>}<span className="muted">{msg}</span></div></form>
 }

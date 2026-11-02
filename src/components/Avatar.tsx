@@ -1,4 +1,5 @@
 export type PhotoStyle = { shape?: string; zoom?: number; x?: number; y?: number; border?: string; borderW?: number }
+export const defaultStyle: PhotoStyle = { shape: 'circle', zoom: 1, x: 0, y: 0, border: '#7c5cff', borderW: 2 }
 // Fully customizable picture: shape, zoom, position and border are stored per user in applicants.photo_style
 export function Avatar({ url, style, size = 40, name }: { url?: string | null; style?: PhotoStyle; size?: number; name?: string }) {
   const s = style || {}
