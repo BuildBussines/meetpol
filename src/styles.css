@@ -76,3 +76,7 @@ h3.sec{margin:22px 0 10px;color:#fff;font-size:1.05rem;border-left:4px solid var
   .dd-menu{display:flex;position:static;background:none;border:0;box-shadow:none;padding:0 0 0 12px;min-width:0}
   .dd-btn .caret{display:none}.dd-btn{text-align:left}
 }
+.dot{background:#ef4444;color:#fff;border-radius:99px;font-size:.7rem;padding:1px 6px;margin-left:4px}
+.notes{max-height:340px;overflow:auto;min-width:290px}.notes .dd-item{display:flex;flex-direction:column;gap:2px;white-space:normal}
+.notes .dd-item small{color:var(--mut)}.links .dd-item.unread{background:#7c5cff33;border-left:3px solid var(--b)}
+.dd-head .linkbtn{background:none;border:0;color:var(--b);cursor:pointer;font:inherit;font-size:.8rem;text-align:left;padding:2px 0}
