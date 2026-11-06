@@ -82,13 +82,38 @@ function Settings({ fields }: { fields: any[] }) {
   }
   return <form onSubmit={save}><FieldsForm fields={fields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button><span className="muted">{m}</span></div></form>
 }
+// Overview cards with live counts; click one to jump to its section
+function Overview({ go }: { go: (t: string) => void }) {
+  const [n, setN] = useState<any>({})
+  useEffect(() => { (async () => {
+    const c = async (t: string, f?: (q: any) => any) => { let q: any = supabase.from(t).select('id', { count: 'exact', head: true }); if (f) q = f(q); return (await q).count || 0 }
+    setN({ users: await c('profiles'), seekers: await c('applicants'), roles: await c('postings'), apps: await c('applications'), pending: await c('donation_requests', q => q.eq('status', 'pending')), pledges: await c('fundings') })
+  })() }, [])
+  const cards: any[] = [['users', 'Users', n.users, 'users'], ['seekers', 'Applicant profiles', n.seekers, 'applicants'], ['roles', 'Job postings', n.roles, 'postings'],
+    ['apps', 'Applications', n.apps, 'postings'], ['pending', 'Requests awaiting approval', n.pending, 'requests'], ['pledges', 'Pledges', n.pledges, 'requests']]
+  return <div className="stats-grid">{cards.map(([k, label, val, tab]) => <button key={k} className={'stat' + (k === 'pending' && val > 0 ? ' hot' : '')} onClick={() => go(tab)}><b>{val ?? '…'}</b><span>{label}</span></button>)}</div>
+}
+const NAV: [string, [string, string, string, string][]][] = [
+  ['Overview', [['overview', '📊', 'Overview', 'A quick look at your platform.']]],
+  ['Content', [['homepage', '🏠', 'Homepage', 'Edit the headline and the three boxes visitors see first.'], ['settings', '⚙️', 'Site settings', 'Site name, announcement banner and footer.'],
+    ['templates', '🧩', 'Templates', 'Add website templates with live previews.'], ['categories', '🗂️', 'Categories', 'Create categories and turn coming soon on or off.']]],
+  ['Community', [['requests', '💝', 'Donation requests', 'Approve requests and manage pledges.'], ['applicants', '🎓', 'Applicants', 'View, edit or delete applicant profiles.'], ['postings', '💼', 'Postings', 'Add, edit or delete job postings.']]],
+  ['Access', [['users', '👥', 'Users & roles', 'Give roles: seeker, employer, tester or admin.']]],
+]
 export default function Admin() {
   const { session } = useAuth()
-  const [tab, setTab] = useState('homepage')
-  return <div className="panel"><h2>Admin dashboard</h2>
-    <div className="row">{['homepage', 'settings', 'templates', 'categories', 'requests', 'applicants', 'postings', 'users'].map(t => <button key={t} className={'btn' + (tab === t ? '' : ' ghost')} onClick={() => setTab(t)}>{t}</button>)}</div>
-    {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}{tab === 'templates' && <Templates />}{tab === 'requests' && <Requests />}{tab === 'categories' && <Categories />}
-    {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
-    {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" add defaults={{ employer_id: session.user.id }} />}
-    {tab === 'users' && <Users />}</div>
+  const [tab, setTab] = useState('overview')
+  const cur = NAV.flatMap(g => g[1]).find(x => x[0] === tab)!
+  return <div className="admin">
+    <aside className="admin-side"><div className="side-brand"><i>⚡</i> Admin</div>
+      {NAV.map(([group, items]) => <div className="side-group" key={group}><div className="side-label">{group}</div>
+        {items.map(([id, icon, label]) => <button key={id} className={'side-item' + (tab === id ? ' active' : '')} onClick={() => setTab(id)}><span>{icon}</span>{label}</button>)}</div>)}</aside>
+    <section className="admin-main"><div className="admin-head"><h2>{cur[2]}</h2><p className="muted">{cur[3]}</p></div>
+      {tab === 'overview' && <Overview go={setTab} />}
+      {tab !== 'overview' && <div className="glass">
+        {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}
+        {tab === 'templates' && <Templates />}{tab === 'categories' && <Categories />}{tab === 'requests' && <Requests />}
+        {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
+        {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" add defaults={{ employer_id: session.user.id }} />}
+        {tab === 'users' && <Users />}</div>}</section></div>
 }

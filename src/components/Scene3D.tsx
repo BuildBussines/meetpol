@@ -13,13 +13,13 @@ function Knot({ hero }: { hero: boolean }) {
     g.current.rotation.y += dt * 0.3
   })
   return (<group ref={g}><Float speed={2} floatIntensity={1.2}>
-    <mesh><torusKnotGeometry args={[1, 0.32, 200, 32]} /><MeshDistortMaterial color="#7c5cff" distort={0.35} speed={2} roughness={0.15} metalness={0.6} /></mesh>
-    <mesh position={[-2.6, 1.4, -1]}><icosahedronGeometry args={[0.45, 0]} /><meshStandardMaterial color="#22d3ee" flatShading /></mesh>
-    <mesh position={[-2.2, -1.5, 0.5]}><octahedronGeometry args={[0.35]} /><meshStandardMaterial color="#f472b6" flatShading /></mesh>
+    <mesh><torusKnotGeometry args={[1, 0.32, 200, 32]} /><MeshDistortMaterial color="#c8f432" distort={0.35} speed={2} roughness={0.15} metalness={0.6} /></mesh>
+    <mesh position={[-2.6, 1.4, -1]}><icosahedronGeometry args={[0.45, 0]} /><meshStandardMaterial color="#ffffff" flatShading /></mesh>
+    <mesh position={[-2.2, -1.5, 0.5]}><octahedronGeometry args={[0.35]} /><meshStandardMaterial color="#6d8a1a" flatShading /></mesh>
   </Float></group>)
 }
 export default function Scene3D({ hero }: { hero: boolean }) {
   return <div className="scene"><Canvas camera={{ position: [0, 0, 7], fov: 50 }} dpr={[1, 1.5]}>
-    <ambientLight intensity={0.6} /><directionalLight position={[4, 5, 5]} intensity={2} /><pointLight position={[-5, -3, 2]} color="#22d3ee" intensity={30} />
+    <ambientLight intensity={0.6} /><directionalLight position={[4, 5, 5]} intensity={2} /><pointLight position={[-5, -3, 2]} color="#ffffff" intensity={30} />
     <Stars radius={60} depth={40} count={1500} factor={3} fade speed={1} /><Knot hero={hero} /></Canvas></div>
 }

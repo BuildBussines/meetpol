@@ -78,7 +78,7 @@ export default function App() {
           : <><button className="btn" onClick={signInWithGoogle}>Sign in with Google</button>
             <button className="btn ghost" onClick={() => setShowSettings(true)} aria-label="Settings">⚙</button></>}
       </nav></div></header>
-    <main key={loc.pathname} className="page"><Routes>
+    <main key={loc.pathname} className={'page' + (loc.pathname === '/admin' ? ' wide' : '')}><Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/onboarding" element={<Guard><Onboarding /></Guard>} />
       <Route path="/profile" element={<Guard roles={['seeker', 'tester']}><MyProfile /></Guard>} />

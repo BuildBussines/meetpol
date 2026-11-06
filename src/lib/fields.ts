@@ -39,10 +39,10 @@ export const fundFields: Field[] = [
 ]
 
 export const homeDefaults: Record<string, string> = {
-  hero_title: 'Where talent meets opportunity', hero_subtitle: 'MeetPol connects ambitious job seekers with employers who are looking for them.',
-  box1_icon: '🎓', box1_title: 'Job seekers', box1_text: 'Build one rich profile and let employers find you.', box1_color: '#7c5cff', box1_link: '',
-  box2_icon: '🏢', box2_title: 'Employers', box2_text: 'Review applicant profiles and post exactly who you want to hire.', box2_color: '#22d3ee', box2_link: '',
-  box3_icon: '🔒', box3_title: 'Private by design', box3_text: 'Row Level Security keeps your data editable only by you.', box3_color: '#f472b6', box3_link: '',
+  hero_badge: 'Talent × Opportunity', hero_title: 'Where *talent* meets opportunity', hero_subtitle: 'MeetPol connects ambitious job seekers with employers who are looking for them.',
+  box1_icon: '🎓', box1_title: 'Job seekers', box1_text: 'Build one rich profile and let employers find you.', box1_color: '#c8f432', box1_link: '',
+  box2_icon: '🏢', box2_title: 'Employers', box2_text: 'Review applicant profiles and post exactly who you want to hire.', box2_color: '#ffffff', box2_link: '',
+  box3_icon: '🔒', box3_title: 'Private by design', box3_text: 'Row Level Security keeps your data editable only by you.', box3_color: '#8aa82a', box3_link: '',
 }
 export const siteFields: Field[] = [
   { key: 'site_name', label: 'Site name (top-left logo & browser tab)' },
@@ -50,7 +50,7 @@ export const siteFields: Field[] = [
 ]
 // Homepage: headline + the three boxes (icon, title, text, optional link, accent color)
 export const homeFields: Field[] = [
-  { key: 'hero_title', label: 'Homepage title' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
+  { key: 'hero_badge', label: 'Small label above the title' }, { key: 'hero_title', label: 'Homepage title (put *stars* around the word to highlight it in lime)' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
   ...[1, 2, 3].flatMap(i => [
     { key: `box${i}_icon`, label: `Box ${i} — icon (emoji)` }, { key: `box${i}_title`, label: `Box ${i} — title` },
     { key: `box${i}_text`, label: `Box ${i} — text`, type: 'textarea' as const },
