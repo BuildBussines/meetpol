@@ -59,27 +59,3 @@ export const homeFields: Field[] = [
     { key: `box${i}_color`, label: `Box ${i} — accent color`, type: 'color' as const },
   ]),
 ]
-
-// Google Fonts specs (only weights each font really has) + the heading weight to use
-export const HEAD_FONTS: Record<string, { spec: string; w: number }> = {
-  'Instrument Serif': { spec: 'Instrument+Serif:ital@0;1', w: 400 }, 'Playfair Display': { spec: 'Playfair+Display:ital,wght@0,400;1,400', w: 400 },
-  'DM Serif Display': { spec: 'DM+Serif+Display:ital@0;1', w: 400 }, 'Lora': { spec: 'Lora:ital,wght@0,400;1,400', w: 400 },
-  'Space Grotesk': { spec: 'Space+Grotesk:wght@700', w: 700 }, 'Poppins': { spec: 'Poppins:wght@700', w: 700 },
-  'Montserrat': { spec: 'Montserrat:wght@700', w: 700 }, 'Outfit': { spec: 'Outfit:wght@700', w: 700 }, 'Inter': { spec: 'Inter:wght@700', w: 700 },
-}
-export const BODY_FONTS: Record<string, string> = {
-  'Inter': 'Inter:wght@400;500;600;700', 'Poppins': 'Poppins:wght@400;500;600;700', 'DM Sans': 'DM+Sans:wght@400;500;700', 'Manrope': 'Manrope:wght@400;500;700',
-  'Outfit': 'Outfit:wght@400;500;700', 'Roboto': 'Roboto:wght@400;500;700', 'Lora': 'Lora:wght@400;500;700', 'Space Grotesk': 'Space+Grotesk:wght@400;500;700',
-}
-export const designDefaults: Record<string, string> = {
-  font_heading: 'Instrument Serif', font_body: 'Inter', text_size: 'Normal', heading_size: 'Normal',
-  text_color: '#ffffff', muted_color: '#a1a1aa', accent_color: '#c8f432',
-}
-export const designFields: Field[] = [
-  { key: 'font_heading', label: 'Heading font', type: 'select', options: Object.keys(HEAD_FONTS) },
-  { key: 'font_body', label: 'Body text font', type: 'select', options: Object.keys(BODY_FONTS) },
-  { key: 'text_size', label: 'Text size', type: 'select', options: ['Small', 'Normal', 'Large', 'Extra large'] },
-  { key: 'heading_size', label: 'Headline size', type: 'select', options: ['Compact', 'Normal', 'Large', 'Huge'] },
-  { key: 'text_color', label: 'Text color', type: 'color' }, { key: 'muted_color', label: 'Secondary text color', type: 'color' },
-  { key: 'accent_color', label: 'Accent color (buttons, highlights, 3D shape)', type: 'color' },
-]

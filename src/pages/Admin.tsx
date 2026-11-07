@@ -1,9 +1,8 @@
 import { Icon } from '../components/Icon'
-import { useEffect, useRef, useState } from 'react'
-import { applyTheme } from '../lib/theme'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
-import { applicantFields, postingFields, siteFields, homeFields, homeDefaults, designFields, designDefaults, categoryFields, itemFields } from '../lib/fields'
+import { applicantFields, postingFields, siteFields, homeFields, homeDefaults, categoryFields, itemFields } from '../lib/fields'
 import { FieldsForm, Modal } from '../components/ui'
 import { fixUrl } from '../lib/url'
 
@@ -73,19 +72,16 @@ function Users() {
   return <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.email}</td><td><select value={r.role} onChange={e => setRole(r.id, e.target.value)}>{['seeker', 'employer', 'tester', 'admin'].map(x => <option key={x}>{x}</option>)}</select></td></tr>)}</tbody></table>
 }
 // FIX: the form now re-syncs when settings load, and save errors are shown instead of a fake "Saved".
-function Settings({ fields, defaults, live }: { fields: any[]; defaults?: Record<string, string>; live?: boolean }) {
+function Settings({ fields }: { fields: any[] }) {
   const { settings, loadSettings } = useAuth(); const [v, setV] = useState<any>({}); const [m, setM] = useState('')
-  const sref = useRef(settings); sref.current = settings
-  useEffect(() => { setV({ ...homeDefaults, ...designDefaults, ...settings }) }, [settings])
-  useEffect(() => { if (live && Object.keys(v).length) applyTheme(v) }, [v])        // live preview while editing
-  useEffect(() => () => { if (live) applyTheme(sref.current) }, [])                    // drop unsaved preview when leaving
+  useEffect(() => { setV({ ...homeDefaults, ...settings }) }, [settings])
   const save = async (e: any) => {
     e.preventDefault()
     const { error } = await supabase.from('site_settings').upsert(fields.map((f: any) => f).map(f => ({ key: f.key, value: v[f.key] ?? '' })), { onConflict: 'key' })
     if (error) return setM('Error: ' + error.message)
     await loadSettings(); setM('Saved — live now')
   }
-  return <form onSubmit={save}><FieldsForm fields={fields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button>{defaults && <button type="button" className="btn ghost" onClick={() => { setV({ ...v, ...defaults }); setM('Defaults restored — press Save settings to keep them') }}><Icon name="rotate-ccw" />Reset to default design</button>}<span className="muted">{m}</span></div></form>
+  return <form onSubmit={save}><FieldsForm fields={fields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button><span className="muted">{m}</span></div></form>
 }
 // Overview cards with live counts; click one to jump to its section
 function Overview({ go }: { go: (t: string) => void }) {
@@ -100,7 +96,7 @@ function Overview({ go }: { go: (t: string) => void }) {
 }
 const NAV: [string, [string, string, string, string][]][] = [
   ['Overview', [['overview', 'bar-chart', 'Overview', 'A quick look at your platform.']]],
-  ['Content', [['homepage', 'home', 'Homepage', 'Edit the headline and the three boxes visitors see first.'], ['design', 'type', 'Design & text', 'Fonts, text size and colors for the whole site. Changes preview live.'], ['settings', 'settings', 'Site settings', 'Site name, announcement banner and footer.'],
+  ['Content', [['homepage', 'home', 'Homepage', 'Edit the headline and the three boxes visitors see first.'], ['settings', 'settings', 'Site settings', 'Site name, announcement banner and footer.'],
     ['templates', 'layout', 'Templates', 'Add website templates with live previews.'], ['categories', 'folder', 'Categories', 'Create categories and turn coming soon on or off.']]],
   ['Community', [['requests', 'heart', 'Donation requests', 'Approve requests and manage pledges.'], ['applicants', 'graduation-cap', 'Applicants', 'View, edit or delete applicant profiles.'], ['postings', 'briefcase', 'Postings', 'Add, edit or delete job postings.']]],
   ['Access', [['users', 'users', 'Users & roles', 'Give roles: seeker, employer, tester or admin.']]],
@@ -116,7 +112,7 @@ export default function Admin() {
     <section className="admin-main"><div className="admin-head"><h2>{cur[2]}</h2><p className="muted">{cur[3]}</p></div>
       {tab === 'overview' && <Overview go={setTab} />}
       {tab !== 'overview' && <div className="glass">
-        {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}{tab === 'design' && <Settings key="d" fields={designFields} defaults={designDefaults} live />}
+        {tab === 'homepage' && <Settings key="h" fields={homeFields} />}{tab === 'settings' && <Settings key="s" fields={siteFields} />}
         {tab === 'templates' && <Templates />}{tab === 'categories' && <Categories />}{tab === 'requests' && <Requests />}
         {tab === 'applicants' && <Table table="applicants" fields={applicantFields} label="name" />}
         {tab === 'postings' && <Table table="postings" fields={postingFields} label="title" add defaults={{ employer_id: session.user.id }} />}
