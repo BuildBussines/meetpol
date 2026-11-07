@@ -125,3 +125,10 @@ h3.sec{border-left-color:var(--a)}.links .dd-item.unread{background:rgba(200,244
 .side-item .ic{margin:0}.stat .ic,.who .ic{margin:0}.caret{margin-left:2px}
 .home-card h3 .ic{color:var(--a);vertical-align:-4px}.poster-icon{color:var(--a)}
 .side-brand i .ic{vertical-align:middle}.badge .ic{margin-right:4px}
+
+/* ---- readability fixes only (banner, coming-soon poster, notice boxes) ---- */
+.banner{background:linear-gradient(90deg,#c8f432,#e7ff8c);color:#0b0b0c;font-weight:600}
+.poster-inner{border:2px solid transparent;background:linear-gradient(#0e0e10,#0e0e10) padding-box,linear-gradient(135deg,#c8f432,#ffffff,#6d8a1a) border-box;backdrop-filter:none}
+.poster-inner:before{display:none}
+.poster-inner h1,.poster-inner p{color:#ffffff}.poster-inner h2{color:#c8f432}
+.notice{background:#16190c;border:1px solid rgba(200,244,50,.45);color:#ffffff}
