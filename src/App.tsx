@@ -1,4 +1,5 @@
 import { Icon } from './components/Icon'
+import { applyTheme } from './lib/theme'
 import { useEffect, useRef, useState, ReactNode } from 'react'
 import { Routes, Route, Link, Navigate, useLocation, useNavigate, NavLink } from 'react-router-dom'
 import { supabase } from './lib/supabase'
@@ -56,9 +57,10 @@ export default function App() {
   const loc = useLocation(); const role = profile?.role; const siteName = settings.site_name || 'MeetPol'
   useEffect(() => { initMusic(); initTranslate() }, [])
   useEffect(() => setBurger(false), [loc.pathname])
+  useEffect(() => { applyTheme(settings) }, [settings])
   useEffect(() => { document.title = `${siteName} — ${settings.hero_title || 'Where talent meets opportunity'}` }, [siteName, settings.hero_title])
   return (<>
-    <Scene3D hero={loc.pathname === '/'} />
+    <Scene3D hero={loc.pathname === '/'} color={settings.accent_color || '#c8f432'} />
     <div id="google_translate_element" style={{ display: 'none' }} />
     {settings.announcement && <div className="banner">{settings.announcement}</div>}
     <header className="topbar"><div className="topbar-in">
