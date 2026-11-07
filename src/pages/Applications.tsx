@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { Tilt } from '../components/ui'
@@ -19,7 +20,7 @@ export default function Applications() {
         <div><h3 style={{ margin: 0 }}>{p.name || 'Applicant'}</h3><p className="muted" style={{ margin: 0 }}>for <b>{a.postings?.title}</b></p></div></div>
       <span className={'badge ' + (a.status === 'applied' ? 'pending' : a.status === 'shortlisted' ? 'confirmed' : 'rejected')}>{a.status}</span>
       {a.message && <p>“{a.message}”</p>}<p className="muted">{p.degree} {p.graduation_year && `· ${p.graduation_year}`}</p>
-      <div className="row"><button className="btn" onClick={() => setStatus(a.id, 'shortlisted')}>⭐ Shortlist</button>
+      <div className="row"><button className="btn" onClick={() => setStatus(a.id, 'shortlisted')}><Icon name="star" />Shortlist</button>
         <button className="btn ghost" onClick={() => setStatus(a.id, 'rejected')}>Reject</button>
         <button className="btn ghost" onClick={() => setOpen(open === a.id ? null : a.id)}>{open === a.id ? 'Hide' : 'Profile'}</button></div>
       {open === a.id && <div className="detail"><p>{p.intro}</p><p><b>Why this job:</b> {p.why_job}</p><p><b>Achievements:</b> {p.achievements}</p><p><b>Dream career:</b> {p.dream_career}</p>

@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
@@ -12,7 +13,7 @@ export default function MyApplications() {
   useEffect(() => { load() }, [])
   const withdraw = async (id: string) => { if (confirm('Withdraw this application?')) { await supabase.from('applications').delete().eq('id', id); load() } }
   return (<><h2>My applications</h2>
-    <p className="notice">👀 {interest} employer{interest === 1 ? '' : 's'} showed interest in your profile.</p>
+    <p className="notice"><Icon name="eye" />{interest} employer{interest === 1 ? '' : 's'} showed interest in your profile.</p>
     <div className="cards3">{rows.map(a => <Tilt key={a.id}><h3>{a.postings?.title}</h3><p className="muted">{a.postings?.company}</p>
       <span className={'badge ' + (a.status === 'applied' ? 'pending' : a.status === 'shortlisted' ? 'confirmed' : 'rejected')}>{a.status === 'applied' ? 'waiting' : a.status}</span>
       {a.message && <p>“{a.message}”</p>}

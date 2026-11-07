@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
@@ -22,7 +23,7 @@ export default function MyProfile() {
   const save = async (e: any) => {
     e.preventDefault(); const { id, created_at, ...rest } = v
     const { error } = await supabase.from('applicants').upsert({ ...rest, user_id: session.user.id, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
-    setMsg(error ? error.message : 'Saved ✓'); if (!error) { refreshAvatar(); setV({ ...v }) }
+    setMsg(error ? error.message : 'Saved'); if (!error) { refreshAvatar(); setV({ ...v }) }
   }
   const del = async () => { if (confirm('Delete your profile?')) { await supabase.from('applicants').delete().eq('user_id', session.user.id); setV({}); setMsg('Deleted'); refreshAvatar() } }
   return <form className="panel" onSubmit={save}><h2>My application profile</h2><h3 className="sec">Profile picture</h3>
@@ -35,7 +36,7 @@ export default function MyProfile() {
         <label>Border width<input type="range" min="0" max="10" value={st.borderW ?? 2} onChange={e => setSt({ borderW: +e.target.value })} /></label>
         <label>Move left / right<input type="range" min="-50" max="50" value={st.x || 0} onChange={e => setSt({ x: +e.target.value })} /></label>
         <label>Move up / down<input type="range" min="-50" max="50" value={st.y || 0} onChange={e => setSt({ y: +e.target.value })} /></label>
-        <div className="row full"><button type="button" className="btn ghost" onClick={() => { setV({ ...v, photo_style: { ...defaultStyle } }); setMsg('Picture reset to default — press Save profile') }}>↺ Default settings</button>
+        <div className="row full"><button type="button" className="btn ghost" onClick={() => { setV({ ...v, photo_style: { ...defaultStyle } }); setMsg('Picture reset to default — press Save profile') }}><Icon name="rotate-ccw" />Default settings</button>
           {v.photo_url && <button type="button" className="btn ghost" onClick={() => { setV({ ...v, photo_url: null }); setMsg('Photo removed — press Save profile') }}>Remove photo</button>}</div>
       </div></div>
     <h3 className="sec">Basics</h3><FieldsForm fields={applicantFields.slice(0, 4)} value={v} onChange={setV} />

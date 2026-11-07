@@ -13,7 +13,7 @@ export function FieldsForm({ fields, value, onChange }: { fields: Field[]; value
     {f.type === 'checkbox' ? <input type="checkbox" checked={!!value[f.key]} onChange={e => set(f.key, e.target.checked)} />
       : f.type === 'color' ? <input type="color" value={value[f.key] || '#7c5cff'} onChange={e => set(f.key, e.target.value)} />
       : f.type === 'textarea' ? <textarea rows={3} required={f.req} value={value[f.key] ?? ''} onChange={e => set(f.key, e.target.value)} />
-      : f.type === 'select' ? <select value={value[f.key] ?? f.options![0]} onChange={e => set(f.key, e.target.value)}>{f.options!.map(o => <option key={o}>{o}</option>)}</select>
+      : f.type === 'select' ? <select value={value[f.key] ?? f.options![0]} onChange={e => set(f.key, e.target.value)}>{(value[f.key] && !f.options!.includes(value[f.key]) ? [value[f.key], ...f.options!] : f.options!).map(o => <option key={o}>{o}</option>)}</select>
       : <input type={f.type || 'text'} required={f.req} value={value[f.key] ?? ''} onChange={e => set(f.key, f.type === 'number' ? (e.target.value === '' ? null : +e.target.value) : e.target.value)} />}
   </label>)}</div>
 }

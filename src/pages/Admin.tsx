@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
@@ -20,7 +21,7 @@ function Table({ table, fields, label, where, defaults, prepare, add, extra, onC
       {preview && nv.link_url && <><p className="muted">Live preview (blank = that site blocks embedding):</p><div className="thumb"><iframe src={fixUrl(nv.link_url)} title="preview" sandbox="allow-scripts allow-same-origin" /></div></>}
       <div className="row"><button className="btn">Add</button></div></form>}
     <p className="muted">{err}</p>
-    <table><tbody>{rows.map(r => <tr key={r.id}><td>{r.icon} {r[label]} {r.coming_soon && <span className="badge pending">🚧 coming soon</span>}</td><td className="muted">{r.email || r.company || r.link_url || r.kind || ''}</td>
+    <table><tbody>{rows.map(r => <tr key={r.id}><td><Icon name={r.icon} />{r[label]} {r.coming_soon && <span className="badge pending">coming soon</span>}</td><td className="muted">{r.email || r.company || r.link_url || r.kind || ''}</td>
       <td>{extra?.(r, load)} <button className="btn ghost" onClick={() => setEdit(r)}>Edit</button> <button className="btn ghost" onClick={() => del(r.id)}>Delete</button></td></tr>)}</tbody></table>
     {edit && <Modal title="Edit" onClose={() => setEdit(null)}><form onSubmit={save}><FieldsForm fields={fields} value={edit} onChange={setEdit} /><div className="row"><button className="btn">Save</button></div></form></Modal>}</>
 }
@@ -31,7 +32,7 @@ function Categories() {
   const { loadCategories } = useAuth(); const [sel, setSel] = useState<any>(null)
   return <><Table table="categories" fields={categoryFields} label="name" add onChange={loadCategories}
     prepare={(r: any) => ({ ...r, kind: r.kind || 'generic', slug: slugify(r.name) })}
-    extra={(r: any, reload: any) => <><button className="btn" onClick={() => setSel(r)}>Items</button> <button className={r.coming_soon ? 'btn' : 'btn ghost'} onClick={async () => { await supabase.from('categories').update({ coming_soon: !r.coming_soon }).eq('id', r.id); reload(); loadCategories() }}>{r.coming_soon ? '🚧 Disable coming soon' : '🚧 Enable coming soon'}</button></>} />
+    extra={(r: any, reload: any) => <><button className="btn" onClick={() => setSel(r)}>Items</button> <button className={r.coming_soon ? 'btn' : 'btn ghost'} onClick={async () => { await supabase.from('categories').update({ coming_soon: !r.coming_soon }).eq('id', r.id); reload(); loadCategories() }}><Icon name="clock" />{r.coming_soon ? 'Disable coming soon' : 'Enable coming soon'}</button></>} />
     {sel && <div className="panel"><h3>Items in “{sel.name}” {sel.kind === 'templates' && '(paste a website link — it will be previewed)'}</h3>
       <Table key={sel.id} table="category_items" fields={itemFields} label="title" where={['category_id', sel.id]} defaults={{ category_id: sel.id }} add /></div>}</>
 }
@@ -40,7 +41,7 @@ function Templates() {
   const { loadCategories } = useAuth(); const [cats, setCats] = useState<any[] | null>(null); const [cid, setCid] = useState('')
   const load = async () => { const { data } = await supabase.from('categories').select('*').eq('kind', 'templates'); setCats(data || []); if (data?.length) setCid((c: string) => c || data[0].id) }
   useEffect(() => { load() }, [])
-  const create = async () => { await supabase.from('categories').insert({ name: 'Templates', slug: 'templates-' + Date.now().toString(36), kind: 'templates', icon: '🧩', description: 'Website templates with live preview.' }); await load(); loadCategories() }
+  const create = async () => { await supabase.from('categories').insert({ name: 'Templates', slug: 'templates-' + Date.now().toString(36), kind: 'templates', icon: 'layout', description: 'Website templates with live preview.' }); await load(); loadCategories() }
   if (!cats) return <p className="muted">Loading…</p>
   if (!cats.length) return <div className="row"><p>No Templates category yet.</p><button className="btn" onClick={create}>Create Templates category</button></div>
   return <><h3>Add a website template</h3>
@@ -60,7 +61,7 @@ function Requests() {
   const St = ({ t, r, opts }: any) => <select value={r.status} onChange={e => set(t, r.id, e.target.value)}>{opts.map((x: string) => <option key={x}>{x}</option>)}</select>
   return <><h3>Donation requests</h3><table><tbody>{rows.map(r => <tr key={r.id}><td><b>{r.reason || r.title}</b><br /><span className="muted">{r.applicant_name} {r.age && `· ${r.age}y`} · {r.phone} · {r.email}<br />{r.description}<br />Goal {r.goal_amount} {r.currency} · {r.bank_account || r.payment_info}</span></td>
     <td><St t="donation_requests" r={r} opts={['pending', 'approved', 'rejected', 'closed']} /> <button className="btn ghost" onClick={() => del('donation_requests', r.id)}>Delete</button></td></tr>)}</tbody></table>
-    <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} → {(rows.find(r => r.id === f.request_id)?.reason || rows.find(r => r.id === f.request_id)?.title)}<br /><span className="muted">{f.reference} {f.message}</span></td>
+    <h3>Pledges</h3><table><tbody>{fund.map(f => <tr key={f.id}><td>{f.funder_name} · {f.amount} to {(rows.find(r => r.id === f.request_id)?.reason || rows.find(r => r.id === f.request_id)?.title)}<br /><span className="muted">{f.reference} {f.message}</span></td>
       <td><St t="fundings" r={f} opts={['pledged', 'confirmed', 'rejected']} /> <button className="btn ghost" onClick={() => del('fundings', f.id)}>Delete</button></td></tr>)}</tbody></table></>
 }
 function Users() {
@@ -78,7 +79,7 @@ function Settings({ fields }: { fields: any[] }) {
     e.preventDefault()
     const { error } = await supabase.from('site_settings').upsert(fields.map((f: any) => f).map(f => ({ key: f.key, value: v[f.key] ?? '' })), { onConflict: 'key' })
     if (error) return setM('Error: ' + error.message)
-    await loadSettings(); setM('Saved ✓ — live now')
+    await loadSettings(); setM('Saved — live now')
   }
   return <form onSubmit={save}><FieldsForm fields={fields} value={v} onChange={setV} /><div className="row"><button className="btn">Save settings</button><span className="muted">{m}</span></div></form>
 }
@@ -94,20 +95,20 @@ function Overview({ go }: { go: (t: string) => void }) {
   return <div className="stats-grid">{cards.map(([k, label, val, tab]) => <button key={k} className={'stat' + (k === 'pending' && val > 0 ? ' hot' : '')} onClick={() => go(tab)}><b>{val ?? '…'}</b><span>{label}</span></button>)}</div>
 }
 const NAV: [string, [string, string, string, string][]][] = [
-  ['Overview', [['overview', '📊', 'Overview', 'A quick look at your platform.']]],
-  ['Content', [['homepage', '🏠', 'Homepage', 'Edit the headline and the three boxes visitors see first.'], ['settings', '⚙️', 'Site settings', 'Site name, announcement banner and footer.'],
-    ['templates', '🧩', 'Templates', 'Add website templates with live previews.'], ['categories', '🗂️', 'Categories', 'Create categories and turn coming soon on or off.']]],
-  ['Community', [['requests', '💝', 'Donation requests', 'Approve requests and manage pledges.'], ['applicants', '🎓', 'Applicants', 'View, edit or delete applicant profiles.'], ['postings', '💼', 'Postings', 'Add, edit or delete job postings.']]],
-  ['Access', [['users', '👥', 'Users & roles', 'Give roles: seeker, employer, tester or admin.']]],
+  ['Overview', [['overview', 'bar-chart', 'Overview', 'A quick look at your platform.']]],
+  ['Content', [['homepage', 'home', 'Homepage', 'Edit the headline and the three boxes visitors see first.'], ['settings', 'settings', 'Site settings', 'Site name, announcement banner and footer.'],
+    ['templates', 'layout', 'Templates', 'Add website templates with live previews.'], ['categories', 'folder', 'Categories', 'Create categories and turn coming soon on or off.']]],
+  ['Community', [['requests', 'heart', 'Donation requests', 'Approve requests and manage pledges.'], ['applicants', 'graduation-cap', 'Applicants', 'View, edit or delete applicant profiles.'], ['postings', 'briefcase', 'Postings', 'Add, edit or delete job postings.']]],
+  ['Access', [['users', 'users', 'Users & roles', 'Give roles: seeker, employer, tester or admin.']]],
 ]
 export default function Admin() {
   const { session } = useAuth()
   const [tab, setTab] = useState('overview')
   const cur = NAV.flatMap(g => g[1]).find(x => x[0] === tab)!
   return <div className="admin">
-    <aside className="admin-side"><div className="side-brand"><i>⚡</i> Admin</div>
+    <aside className="admin-side"><div className="side-brand"><i><Icon name="zap" size={16} className="solo" /></i> Admin</div>
       {NAV.map(([group, items]) => <div className="side-group" key={group}><div className="side-label">{group}</div>
-        {items.map(([id, icon, label]) => <button key={id} className={'side-item' + (tab === id ? ' active' : '')} onClick={() => setTab(id)}><span>{icon}</span>{label}</button>)}</div>)}</aside>
+        {items.map(([id, icon, label]) => <button key={id} className={'side-item' + (tab === id ? ' active' : '')} onClick={() => setTab(id)}><Icon name={icon} className="solo" />{label}</button>)}</div>)}</aside>
     <section className="admin-main"><div className="admin-head"><h2>{cur[2]}</h2><p className="muted">{cur[3]}</p></div>
       {tab === 'overview' && <Overview go={setTab} />}
       {tab !== 'overview' && <div className="glass">

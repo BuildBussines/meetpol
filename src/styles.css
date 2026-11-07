@@ -120,3 +120,8 @@ h3.sec{border-left-color:var(--a)}.links .dd-item.unread{background:rgba(200,244
 .stat span{color:var(--mut);font-size:.85rem}.stat.hot b{color:var(--a)}.admin table tr:hover td{background:rgba(255,255,255,.03)}
 @media(max-width:900px){.admin{grid-template-columns:1fr}.admin-side{position:static;display:flex;overflow-x:auto;gap:6px;padding:10px}
   .admin-side .side-label,.side-brand{display:none}.side-group{display:flex;gap:6px}.side-item{white-space:nowrap;width:auto}}
+/* icons */
+.ic{vertical-align:-3px;flex:none;margin-right:7px}.ic.solo{margin:0}.ic.after{margin:0 0 0 7px}
+.side-item .ic{margin:0}.stat .ic,.who .ic{margin:0}.caret{margin-left:2px}
+.home-card h3 .ic{color:var(--a);vertical-align:-4px}.poster-icon{color:var(--a)}
+.side-brand i .ic{vertical-align:middle}.badge .ic{margin-right:4px}

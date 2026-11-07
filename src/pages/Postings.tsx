@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
@@ -33,9 +34,9 @@ export default function Postings() {
     {canPost && <form className="panel" onSubmit={add}><h3>Post what you're looking for</h3><FieldsForm fields={postingFields} value={v} onChange={setV} /><div className="row"><button className="btn">Publish</button></div></form>}
     <div className="cards3">{rows.map(r => <Tilt key={r.id}><h3>{r.title}</h3><p className="muted">{r.company} {r.location && `· ${r.location}`}</p><p>{r.looking_for}</p>
       <div className="row">
-        {isSeeker && (applied.includes(r.id) ? <span className="badge confirmed">✓ Applied</span> : <button className="btn" onClick={() => { setOpen(r); setNote('') }}>Apply</button>)}
+        {isSeeker && (applied.includes(r.id) ? <span className="badge confirmed"><Icon name="check" size={14} />Applied</span> : <button className="btn" onClick={() => { setOpen(r); setNote('') }}>Apply</button>)}
         {!session && <button className="btn" onClick={signInWithGoogle}>Sign in to apply</button>}
-        {canPost && <Link className="btn ghost" to="/applications">📥 {counts[r.id] || 0} applicants</Link>}
+        {canPost && <Link className="btn ghost" to="/applications"><Icon name="inbox" />{counts[r.id] || 0} applicants</Link>}
         {r.employer_id === session?.user.id && <button className="btn ghost" onClick={() => del(r.id)}>Delete</button>}</div></Tilt>)}
       {!rows.length && <p className="muted">No postings yet. {canPost ? 'Use the form above to add one.' : 'Employers can sign in and post what they are looking for.'}</p>}</div>
     {open && <Modal title={`Apply: ${open.title}`} onClose={() => setOpen(null)}>

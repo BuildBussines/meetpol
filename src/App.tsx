@@ -1,3 +1,4 @@
+import { Icon } from './components/Icon'
 import { useEffect, useRef, useState, ReactNode } from 'react'
 import { Routes, Route, Link, Navigate, useLocation, useNavigate, NavLink } from 'react-router-dom'
 import { supabase } from './lib/supabase'
@@ -31,10 +32,12 @@ function Dropdown({ label, children, align = '', caret = true }: { label: ReactN
   const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null); const loc = useLocation()
   useEffect(() => setOpen(false), [loc.pathname])
   useEffect(() => { const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false) }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h) }, [])
-  return <div className={'dd' + (open ? ' open' : '')} ref={ref}><button className="dd-btn" onClick={() => setOpen(!open)}>{label} {caret && <span className="caret">▾</span>}</button>
+  return <div className={'dd' + (open ? ' open' : '')} ref={ref}><button className="dd-btn" onClick={() => setOpen(!open)}>{label} {caret && <Icon name="chevron-down" size={14} className="solo caret" />}</button>
     <div className={'dd-menu ' + align} onClick={() => setOpen(false)}>{children}</div></div>
 }
-// 🔔 In-app notifications (created by database triggers); refreshes every 30s
+// In-app notifications (created by database triggers); refreshes every 30s
+// older notification texts may contain emoji; strip them for a cleaner look
+const clean = (t: string) => (t || '').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]\s*/gu, '')
 function Bell() {
   const { session } = useAuth(); const nav = useNavigate(); const [items, setItems] = useState<any[]>([])
   const load = async () => setItems((await supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(15)).data || [])
@@ -42,9 +45,9 @@ function Bell() {
   const unread = items.filter(n => !n.read).length
   const openNote = async (n: any) => { if (!n.read) await supabase.from('notifications').update({ read: true }).eq('id', n.id); load(); if (n.link) nav(n.link) }
   const readAll = async () => { await supabase.from('notifications').update({ read: true }).eq('read', false); load() }
-  return <Dropdown align="right" caret={false} label={<span>🔔{unread > 0 && <b className="dot">{unread}</b>}</span>}>
+  return <Dropdown align="right" caret={false} label={<span><Icon name="bell" size={20} className="solo" />{unread > 0 && <b className="dot">{unread}</b>}</span>}>
     <div className="dd-head"><b>Notifications</b>{unread > 0 && <button className="linkbtn" onClick={e => { e.stopPropagation(); readAll() }}>Mark all read</button>}</div>
-    <div className="notes">{items.map(n => <button key={n.id} className={'dd-item' + (n.read ? '' : ' unread')} onClick={() => openNote(n)}>{n.text}<small>{new Date(n.created_at).toLocaleString()}</small></button>)}
+    <div className="notes">{items.map(n => <button key={n.id} className={'dd-item' + (n.read ? '' : ' unread')} onClick={() => openNote(n)}>{clean(n.text)}<small>{new Date(n.created_at).toLocaleString()}</small></button>)}
       {!items.length && <p className="muted" style={{ padding: 10 }}>Nothing yet.</p>}</div></Dropdown>
 }
 export default function App() {
@@ -60,23 +63,23 @@ export default function App() {
     {settings.announcement && <div className="banner">{settings.announcement}</div>}
     <header className="topbar"><div className="topbar-in">
       <Link to="/" className="logo" translate="no">{siteName}</Link>
-      <button className="burger" onClick={() => setBurger(!burger)} aria-label="Menu">{burger ? '✕' : '☰'}</button>
+      <button className="burger" onClick={() => setBurger(!burger)} aria-label="Menu"><Icon name={burger ? 'x' : 'menu'} size={22} className="solo" /></button>
       <nav className={'links' + (burger ? ' open' : '')}>
         <NavLink to="/postings">Jobs</NavLink>
         {categories.length > 0 && <Dropdown label="Explore">{categories.map((c: any) =>
-          <NavLink key={c.id} className="dd-item" to={`/c/${c.slug}`}>{c.icon} {c.name} {c.coming_soon && (role === 'admin' || role === 'tester') && '🚧'}</NavLink>)}</Dropdown>}
+          <NavLink key={c.id} className="dd-item" to={`/c/${c.slug}`}><Icon name={c.icon} />{c.name} {c.coming_soon && (role === 'admin' || role === 'tester') && <Icon name="clock" size={14} className="after" />}</NavLink>)}</Dropdown>}
         {(role === 'employer' || role === 'admin') && <NavLink to="/applicants">Applicants</NavLink>}
         {session && <Bell />}
         {session ? <Dropdown align="right" label={<span className="who"><Avatar url={avatar?.url} style={avatar?.style} size={30} name={avatar?.name} /><span>{(avatar?.name || 'Me').split(' ')[0]}</span></span>}>
           <div className="dd-head"><b>{avatar?.name}</b><small>{role}</small></div>
-          {(role === 'seeker' || role === 'tester') && <NavLink to="/profile" className="dd-item">👤 My profile</NavLink>}
-          {(role === 'seeker' || role === 'tester') && <NavLink to="/my-applications" className="dd-item">📨 My applications</NavLink>}
-          {(role === 'employer' || role === 'admin') && <NavLink to="/applications" className="dd-item">📥 Applications received</NavLink>}
-          {role === 'admin' && <NavLink to="/admin" className="dd-item">🛠 Admin dashboard</NavLink>}
-          <button className="dd-item" onClick={() => setShowSettings(true)}>⚙ Settings</button>
-          <button className="dd-item" onClick={signOut}>⏻ Sign out</button></Dropdown>
+          {(role === 'seeker' || role === 'tester') && <NavLink to="/profile" className="dd-item"><Icon name="user" />My profile</NavLink>}
+          {(role === 'seeker' || role === 'tester') && <NavLink to="/my-applications" className="dd-item"><Icon name="send" />My applications</NavLink>}
+          {(role === 'employer' || role === 'admin') && <NavLink to="/applications" className="dd-item"><Icon name="inbox" />Applications received</NavLink>}
+          {role === 'admin' && <NavLink to="/admin" className="dd-item"><Icon name="shield" />Admin dashboard</NavLink>}
+          <button className="dd-item" onClick={() => setShowSettings(true)}><Icon name="settings" />Settings</button>
+          <button className="dd-item" onClick={signOut}><Icon name="log-out" />Sign out</button></Dropdown>
           : <><button className="btn" onClick={signInWithGoogle}>Sign in with Google</button>
-            <button className="btn ghost" onClick={() => setShowSettings(true)} aria-label="Settings">⚙</button></>}
+            <button className="btn ghost" onClick={() => setShowSettings(true)} aria-label="Settings"><Icon name="settings" className="solo" /></button></>}
       </nav></div></header>
     <main key={loc.pathname} className={'page' + (loc.pathname === '/admin' ? ' wide' : '')}><Routes>
       <Route path="/" element={<Landing />} />

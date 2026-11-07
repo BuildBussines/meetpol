@@ -1,3 +1,4 @@
+import { ICON_CHOICES } from '../components/Icon'
 export type Field = { key: string; label: string; type?: 'text' | 'number' | 'textarea' | 'email' | 'select' | 'checkbox' | 'color'; req?: boolean; options?: string[] }
 export const applicantFields: Field[] = [
   { key: 'name', label: 'Full name', req: true }, { key: 'age', label: 'Age', type: 'number' },
@@ -12,10 +13,10 @@ export const postingFields: Field[] = [
   { key: 'looking_for', label: 'Who are you looking for?', type: 'textarea' },
 ]
 export const categoryFields: Field[] = [
-  { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon (emoji)' },
+  { key: 'name', label: 'Category name', req: true }, { key: 'icon', label: 'Icon', type: 'select', options: ICON_CHOICES },
   { key: 'kind', label: 'Type', type: 'select', options: ['generic', 'templates', 'donations', 'fund'] },
   { key: 'description', label: 'Description', type: 'textarea' },
-  { key: 'coming_soon', label: '🚧 Enable coming soon (visitors see only a poster; admin & testers see the real page)', type: 'checkbox' },
+  { key: 'coming_soon', label: 'Enable coming soon (visitors see only a poster; admin & testers see the real page)', type: 'checkbox' },
   { key: 'poster_title', label: 'Poster title (default: Coming Soon)' }, { key: 'poster_text', label: 'Poster text', type: 'textarea' },
   { key: 'poster_image', label: 'Poster image URL (optional)' },
 ]
@@ -40,9 +41,9 @@ export const fundFields: Field[] = [
 
 export const homeDefaults: Record<string, string> = {
   hero_badge: 'Talent × Opportunity', hero_title: 'Where *talent* meets opportunity', hero_subtitle: 'MeetPol connects ambitious job seekers with employers who are looking for them.',
-  box1_icon: '🎓', box1_title: 'Job seekers', box1_text: 'Build one rich profile and let employers find you.', box1_color: '#c8f432', box1_link: '',
-  box2_icon: '🏢', box2_title: 'Employers', box2_text: 'Review applicant profiles and post exactly who you want to hire.', box2_color: '#ffffff', box2_link: '',
-  box3_icon: '🔒', box3_title: 'Private by design', box3_text: 'Row Level Security keeps your data editable only by you.', box3_color: '#8aa82a', box3_link: '',
+  box1_icon: 'graduation-cap', box1_title: 'Job seekers', box1_text: 'Build one rich profile and let employers find you.', box1_color: '#c8f432', box1_link: '',
+  box2_icon: 'building', box2_title: 'Employers', box2_text: 'Review applicant profiles and post exactly who you want to hire.', box2_color: '#ffffff', box2_link: '',
+  box3_icon: 'lock', box3_title: 'Private by design', box3_text: 'Row Level Security keeps your data editable only by you.', box3_color: '#8aa82a', box3_link: '',
 }
 export const siteFields: Field[] = [
   { key: 'site_name', label: 'Site name (top-left logo & browser tab)' },
@@ -52,7 +53,7 @@ export const siteFields: Field[] = [
 export const homeFields: Field[] = [
   { key: 'hero_badge', label: 'Small label above the title' }, { key: 'hero_title', label: 'Homepage title (put *stars* around the word to highlight it in lime)' }, { key: 'hero_subtitle', label: 'Homepage subtitle', type: 'textarea' },
   ...[1, 2, 3].flatMap(i => [
-    { key: `box${i}_icon`, label: `Box ${i} — icon (emoji)` }, { key: `box${i}_title`, label: `Box ${i} — title` },
+    { key: `box${i}_icon`, label: `Box ${i} — icon`, type: 'select' as const, options: ICON_CHOICES }, { key: `box${i}_title`, label: `Box ${i} — title` },
     { key: `box${i}_text`, label: `Box ${i} — text`, type: 'textarea' as const },
     { key: `box${i}_link`, label: `Box ${i} — link (optional, e.g. /postings or https://…)` },
     { key: `box${i}_color`, label: `Box ${i} — accent color`, type: 'color' as const },

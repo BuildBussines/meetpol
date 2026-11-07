@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/auth'
 import { Link } from 'react-router-dom'
@@ -20,7 +21,7 @@ export default function Landing() {
     {stats && <div className="stats"><div><b>{stats.seekers}</b><span>Job seekers</span></div><div><b>{stats.roles}</b><span>Open roles</span></div><div><b>{stats.campaigns}</b><span>Donation campaigns</span></div></div>}</section>
     <section className="cards3">{[1, 2, 3].map(i => { const link = g(`box${i}_link`), color = g(`box${i}_color`) || '#c8f432'; return (
       <Tilt key={i} className="home-card" style={{ borderTop: `3px solid ${color}`, boxShadow: `0 10px 40px ${color}22` }}>
-        <h3>{g(`box${i}_icon`)} {g(`box${i}_title`)}</h3><p>{g(`box${i}_text`)}</p>
-        {link && (link.startsWith('/') ? <Link className="btn ghost" to={link}>Learn more →</Link> : <a className="btn ghost" href={link} target="_blank" rel="noreferrer">Learn more →</a>)}
+        <h3><Icon name={g(`box${i}_icon`)} size={22} />{g(`box${i}_title`)}</h3><p>{g(`box${i}_text`)}</p>
+        {link && (link.startsWith('/') ? <Link className="btn ghost" to={link}>Learn more<Icon name="arrow-right" className="after" /></Link> : <a className="btn ghost" href={link} target="_blank" rel="noreferrer">Learn more<Icon name="arrow-right" className="after" /></a>)}
       </Tilt>) })}</section></>)
 }

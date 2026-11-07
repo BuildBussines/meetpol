@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
@@ -21,12 +22,12 @@ export default function DonationsPage({ cat }: { cat: any }) {
   const submit = async (e: any) => {
     e.preventDefault()
     const { error } = await supabase.from('donation_requests').insert({ ...v, title: v.reason, user_id: session.user.id, status: 'pending' })
-    setMsg(error ? error.message : 'Submitted ✓ — it goes live after admin approval.'); if (!error) { setV(blank); load() }
+    setMsg(error ? error.message : 'Submitted — it goes live after admin approval.'); if (!error) { setV(blank); load() }
   }
   const setStatus = async (table: string, id: string, status: string) => { await supabase.from(table).update({ status }).eq('id', id); load() }
   const del = async (id: string) => { if (confirm('Delete this request?')) { await supabase.from('donation_requests').delete().eq('id', id); load() } }
   const total = (id: string) => pledges.filter(p => p.request_id === id && p.status === 'confirmed').reduce((s, p) => s + Number(p.amount), 0)
-  return (<><h2>{cat.icon} {cat.name}</h2><p className="muted">{cat.description}</p>
+  return (<><h2><Icon name={cat.icon} />{cat.name}</h2><p className="muted">{cat.description}</p>
     <p className="notice">MeetPol does not process or hold money. Supporters send money directly to you using the details you provide, then you confirm what you received.</p>
     {!session ? <button className="btn" onClick={signInWithGoogle}>Sign in to ask for a donation</button> : <>
       <form className="panel" onSubmit={submit}><h3>Take donations — tell people about yourself</h3><p className="notice">Your name, age, reason, description, phone, Gmail and bank details will be shown publicly on the Fund page once approved.</p><FieldsForm fields={requestFields} value={v} onChange={setV} />
